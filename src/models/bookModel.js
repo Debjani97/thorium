@@ -18,7 +18,7 @@ const bookSchema = new mongoose.Schema({
         default : 2021
     },
     totalPages : Number,
-    tags : [],
+    tags : [String],
     stockAvailable : Boolean
 }, {timestamps : true})
 
