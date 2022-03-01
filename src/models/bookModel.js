@@ -1,3 +1,4 @@
+const mongoose = require("mongoose")
 const bookSchema = new mongoose.Schema({
     bookName : {
         type : String,
@@ -17,9 +18,12 @@ const bookSchema = new mongoose.Schema({
         default : 2021
     },
     totalPages : Number,
-    tags : [String],
+    tags : [],
     stockAvailable : Boolean
-}, {timestamps : true}) //users
+}, {timestamps : true})
+
+module.exports = mongoose.model("Book", bookSchema)
+//users
 
 //Validation:
 //require:true
