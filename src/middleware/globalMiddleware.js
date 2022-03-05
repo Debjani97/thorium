@@ -1,9 +1,9 @@
-const globalMiddleware = function (req, res, next){
-    console.log(new Date())
-    console.log(req.socket.remoteAddress)
-    console.log(req.originalUrl)
-    next()
-}
+// const globalMiddleware = function (req, res, next){
+//     console.log(new Date())
+//     console.log(req.socket.remoteAddress)
+//     console.log(req.originalUrl)
+//     next()
+// }
 
 
-module.exports.globalMiddleware = globalMiddleware
+// module.exports.globalMiddleware = globalMiddleware

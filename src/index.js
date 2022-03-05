@@ -6,6 +6,14 @@ const app = express();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(
+    function(req, res, next) {
+        let currentData = new Date()
+        let Ip = req.socket.remoteAddress
+        console.log(currentData,Ip,req.originalUrl)
+        next()
+        }
+)
 
 
 mongoose.connect("mongodb+srv://debjani97:debjani97@cluster0.mxihy.mongodb.net/myFirstDatabase?authSource=admin&replicaSet=atlas-12zga8-shard-0&w=majority&readPreference=primary&appname=MongoDB%20Compass&retryWrites=true&ssl=true", {
