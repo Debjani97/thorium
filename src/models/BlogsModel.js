@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const moment = require("moment")
 const ObjectId = mongoose.Schema.Types.ObjectId
 const blogsmodel = new mongoose.Schema( {
     title: { 
@@ -15,22 +16,30 @@ const blogsmodel = new mongoose.Schema( {
         ref:"AuthorModel"
     },
     tags: { 
-        type:[]
+        type:[String]
     },
     category: {
-        type:[],
+        type:[String],
          required:true,
     },
     subcategory: {
-        type:[],
+        type:[String],
     },
     isDeleted: { 
         type:Boolean,
          default: false 
         },
+    delettedAt: {
+        type : Date,
+        default : Date.now
+    },
     isPublished: {
         type:Boolean,
-         default: false }
+         default: false },
+    publishedAt: {
+        type : Date,
+        default : Date.now,
+    }
 
 }, { timestamps: true });   
    
