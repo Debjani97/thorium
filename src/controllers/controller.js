@@ -72,7 +72,7 @@ const updateBlog = async function (req, res) {
     data.publishedAt = new Date();
     data.isPublished = true;
     const dataMore = await blogsmodel.findByIdAndUpdate(id, data, { new: true, upsert: true });
-    res.status(201).send({ status: true, msg: dataMore })
+    res.status(200).send({ status: true, msg: dataMore })
   } catch (err) {
     res.status(500).send({ status: false, Error:"not match" });
   }
@@ -91,7 +91,7 @@ const deleteById = async function (req, res) {
       res.status(404).send({ status: false, msg: "blog not exist" })
     } else {
       let deleteBlogs = await blogsmodel.findOneAndUpdate({ _id: blogId }, { $set: { isDeleted: true, deletedAt :Date.now} }, { new: true });
-         res.status(201).send({ status: true, data: deleteBlogs, msg:"blog deleted " });
+         res.status(200).send({ status: true, msg:"blog deleted " });
       console.log(blogDetails)
     }
   }
@@ -109,7 +109,6 @@ const deleteByQuery = async function (req, res) {
     let tag = req.query.tags
     let subcategorys = req.query.subcategory
     if (!authorIds && !categorys && !tag && !subcategorys) {
-      console.log("i am fgg")
       return res.status(400).send({ status: false, msg: "quarys is required, BAD REQUEST" })
     }
     let authorDetails = await AuthorModel.findById({ _id: authorIds })
@@ -117,7 +116,7 @@ const deleteByQuery = async function (req, res) {
       return res.status(404).send({ status: false, msg: "authorId not exist" })
     } else {
       let updatedDetails = await blogsmodel.findOneAndUpdate({$or: [ { authodId: authorIds },{ category: categorys }, { tags: { $in: [tag] } }, { subcategory: { $in: [subcategorys]}}]},{ isDeleted: true})
-      res.status(201).send({data: updatedDetails, msg:"blog deleted "})
+      res.status(201).send({ststus: true,data: updatedDetails, msg:"blog deleted "})
       req.body.deletedAt = new Date()
       console.log(updatedDetails)
     }
