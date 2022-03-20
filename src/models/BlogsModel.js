@@ -31,14 +31,14 @@ const blogsmodel = new mongoose.Schema( {
         },
     delettedAt: {
         type : Date,
-        default : Date.now
+        //default : Date.now
     },
     isPublished: {
         type:Boolean,
          default: false },
     publishedAt: {
         type : Date,
-        default : Date.now,
+        //default : Date.now
     }
 
 }, { timestamps: true });   

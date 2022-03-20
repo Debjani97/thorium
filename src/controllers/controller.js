@@ -20,43 +20,45 @@ const createAuthor = async function (req, res) {
 
 const createBlog = async function (req, res) {
   try {
-    let data = req.body;
-    let authorId = data.authorId
-    const author_details = await AuthorModel.findById(authorId)
-    if (!author_details) {
-      res.status(400).send("Invalid");
+    let blog = req.body
+    let authorId = req.body.authorId
+    let author = await AuthorModel.findById(authorId)
+    if (!author) {
+      return res.status(400).send({ status: false, msg: "No Such Author is Present,Please check authorId" })
     }
-    req.body.isPublished = true;
-    if (Object.keys(data).length != 0) {
-      let savedData = await blogsmodel.create(data)
-      res.status(201).send({ msg: savedData });
-    }
-    else {
-      res.status(400).send({ msg: "BAD REQUEST" })
-    }
-  } catch (err) {
-    res.status(500).send({ status: false, Error: err });
-  }
-}
+    let blogCreated = await blogsmodel.create(blog)
+   return res.status(201).send({ status: true, data: blogCreated })
+ }
+ catch (error) {
+    console.log(error)
+   return res.status(500).send({ status: false, msg: error.message })
+ }
+};
+
 
 const getBlog = async function (req, res) {
   try {
-    const a_id = req.query.authorId
-    const authorDetails = await AuthorModel.findById({ _id: a_id })
-    if (!authorDetails) res.status(400).send({ msg: "author not found" })
-    const c_details = req.query.category
-    const tags = req.query.tags
-    const subtag = req.query.subcategory
-    let findBlog = await blogsmodel.find(
-      {isDeleted:false, isPublished:true, $or:[{authorId:a_id},{category:c_details},{tags:tags},{subcategory:subtag}]}
+    let qwery = req.query
+    let filter = {
+        isDeleted: false,     //store the condition in filter variable
+        isPublished: true,
+        ...qwery
+    }
+    // console.log(filter)
 
-    )
-    if (!findBlog) res.status(404).send({ status: false, msg: "not found" })
-    res.status(200).send({ status: true, msg: findBlog });
-  } catch (err) {
-    res.status(500).send({ status: false, Error: err });
-  }
+    const filterByQuery = await blogsmodel.find(filter)  //finding the blog by the condition that is stored in the fiter variable.
+    if(filterByQuery.length == 0) {
+        return res.status(404).send({status:false, msg:"No blog found"})
+    }
+    console.log("Data fetched successfully")
+    return res.status(201).send({status:true, data:filterByQuery})
 }
+catch(err) {
+console.log(err)
+res.status(500).send({status:false, msg: err.message})
+}
+}
+
 
 
 const updateBlog = async function (req, res) {
@@ -69,12 +71,13 @@ const updateBlog = async function (req, res) {
     }
     data.publishedAt = new Date();
     data.isPublished = true;
-    const dataMore = await blogsmodel.findByIdAndUpdate(id, data, { new: true });
+    const dataMore = await blogsmodel.findByIdAndUpdate(id, data, { new: true, upsert: true });
     res.status(201).send({ status: true, msg: dataMore })
   } catch (err) {
-    res.status(500).send({ status: false, Error:err });
+    res.status(500).send({ status: false, Error:"not match" });
   }
 }
+
 
 
 const deleteById = async function (req, res) {
@@ -87,14 +90,14 @@ const deleteById = async function (req, res) {
     if (!blogDetails) {
       res.status(404).send({ status: false, msg: "blog not exist" })
     } else {
-      let blogDetails = await blogsmodel.updateOne({ _id: blogId }, { $set: { isDeleted: true,deletedAt :Date.now } }, { new: true })
-      res.status(201).send({msg:"delected blog"})
+      let deleteBlogs = await blogsmodel.findOneAndUpdate({ _id: blogId }, { $set: { isDeleted: true, deletedAt :Date.now} }, { new: true });
+         res.status(201).send({ status: true, data: deleteBlogs, msg:"blog deleted " });
       console.log(blogDetails)
     }
   }
   catch (error) {
     console.log(error)
-    res.status(500).send({ msg: error.message })
+    res.status(500).send({ status: false, msg: error.message })
   }
 }
 
@@ -106,14 +109,15 @@ const deleteByQuery = async function (req, res) {
     let tag = req.query.tags
     let subcategorys = req.query.subcategory
     if (!authorIds && !categorys && !tag && !subcategorys) {
-      res.status(400).send({ status: false, msg: "quarys is required, BAD REQUEST" })
+      console.log("i am fgg")
+      return res.status(400).send({ status: false, msg: "quarys is required, BAD REQUEST" })
     }
     let authorDetails = await AuthorModel.findById({ _id: authorIds })
     if (!authorDetails) {
-      res.status(404).send({ status: false, msg: "authorId not exist" })
+      return res.status(404).send({ status: false, msg: "authorId not exist" })
     } else {
       let updatedDetails = await blogsmodel.findOneAndUpdate({$or: [ { authodId: authorIds },{ category: categorys }, { tags: { $in: [tag] } }, { subcategory: { $in: [subcategorys]}}]},{ isDeleted: true})
-      res.status(201).send({msg:"blog deleted "})
+      res.status(201).send({data: updatedDetails, msg:"blog deleted "})
       req.body.deletedAt = new Date()
       console.log(updatedDetails)
     }
@@ -121,42 +125,10 @@ const deleteByQuery = async function (req, res) {
   }
   catch (error) {
     console.log(error)
-    res.status(500).send({ msg: error.message })
+    res.status(500).send({status: false, msg: error.message })
   }
 }
 
-
-// const loginUser = async function (req, res) {
-//   try{
-//   let data = req.body;
-//   if(Object.entries(data).length == 0){
-//     res.status(400).send({ status: false, msg: "kindly pass same data"})
-//   }
-//   let userName = req.body.email;
-//   let password = req.body.password;
-
-//   let user = await AuthorModel.findOne({ email: userName, password: password });
-//   if (!userName)
-//     return res.status(400).send({
-//       status: false,
-//       msg: "username or the password is not correct",
-//     });
-
-//     let token = jwt.sign(
-//   {
-//       auhor_Id: user._id.toString(),
-//       batch: "functionup",
-//       organisation: "thorium",
-//   },
-//     "first project"
-//   );
-//   res.setHeader("x-api-key", token);
-//   res.status(200).send({ status: true, data: token });
-//   }
-//   catch(err){
-//       res.status(500).send({Error:err.messages})
-//   }
-// }
 
 const loginUser = async function (req, res) {
   try {
@@ -183,7 +155,7 @@ const loginUser = async function (req, res) {
 
   }
   catch (err) {
-     res.status(500).send({ Error: err.message })
+     res.status(500).send({ status: false,Error: err.message })
   }
 }
 
