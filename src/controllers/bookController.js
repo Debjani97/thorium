@@ -190,16 +190,16 @@ const updateBook = async function (req, res) {
         if (title || excerpt || ISBN || releasedAt) {
 
             //validation for empty strings/values.
-            if (!isvalid(title)) {
+            if (!isValid(title)) {
                 return res.status(400).send({ status: false, message: "Title is missing ! Please provide the title details to update." })
             }
-            if (!isvalid(excerpt)) {
+            if (!isValid(excerpt)) {
                 return res.status(400).send({ status: false, message: "Excerpt is missing ! Please provide the Excerpt details to update." })
             };
-            if (!isvalid(ISBN)) {
+            if (!isValid(ISBN)) {
                 return res.status(400).send({ status: false, message: "ISBN is missing ! Please provide the ISBN details to update." })
             };
-            if (!isvalid(releasedAt)) {
+            if (!isValid(releasedAt)) {
                 return res.status(400).send({ status: false, message: "Released date is missing ! Please provide the released date details to update." })
             };
         } //validation ends.

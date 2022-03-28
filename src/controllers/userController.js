@@ -60,7 +60,7 @@ const loginUser = async function (req, res) {
        },
           "third project",
           {
-            expiresIn:"20m"     // EXPIRY TIME FOR THE TOKEN
+            expiresIn:"30m"     // EXPIRY TIME FOR THE TOKEN
           }
        );
        res.setHeader("x-api-key", token);

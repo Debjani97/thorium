@@ -31,7 +31,7 @@ const createReview = async function (req, res) {
         if (!isValid(reviewedBy)) {
             return res.status(400).send({ status: false, message: "Reviewer's name is required" })
         }
-        if (!validator.isValid(rating)) {
+        if (!isValid(rating)) {
             return res.status(400).send({ status: false, message: "Rating is required" })
         }
         if (!isValid(rating)) {
