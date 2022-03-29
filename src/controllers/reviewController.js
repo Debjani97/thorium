@@ -7,6 +7,14 @@ const isValid = function (value) {
     return true
 }
 
+const isValidObjectId = function(objectId) {
+    return mongoose.Types.ObjectId.isValid(objectId)
+}
+
+const isValidRequestBody = function(requestBody) {
+    return Object.keys(requestBody).length > 0; // it checks, is there any key is available or not in request body
+};
+
 
 //Adding review for a specific book.
 const createReview = async function (req, res) {
@@ -16,12 +24,12 @@ const createReview = async function (req, res) {
         const { reviewedBy, rating, review } = requestReviewBody;
 
         //validation starts.
-        if (!isValid(params)) {
+        if (!isValidObjectId(params)) {
             return res.status(400).send({ status: false, message: "Invalid bookId." })
         }
 
         //for empty request body.
-        if (isValid(requestReviewBody)) {
+        if (!isValidRequestBody(requestReviewBody)) {
             return res.status(400).send({ status: false, message: 'Invalid request parameters. Please provide review details to update.' })
         }
         if (!isNaN(reviewedBy)) {
@@ -76,13 +84,13 @@ const updateReview = async function (req, res) {
         const { review, rating, reviewedBy } = requestUpdateBody;
 
         //validation starts.
-        if (!isValid(bookParams)) {
+        if (!isValidObjectId(bookParams)) {
             return res.status(400).send({ status: false, message: "Invalid bookId." })
         }
-        if (!isValid(reviewParams)) {
+        if (!isValidObjectId(reviewParams)) {
             return res.status(400).send({ status: false, message: "Invalid reviewId." })
         }
-        if (!isValid(requestUpdateBody)) {
+        if (!isValidRequestBody(requestUpdateBody)) {
             return res.status(400).send({ status: false, message: 'Invalid request parameters. Please provide review details to update.' })
         } //validation ends
 
@@ -148,10 +156,10 @@ const deleteReview = async function (req, res) {
         const reviewParams = req.params.reviewId
 
         //validation starts.
-        if (!isValid(bookParams)) {
+        if (!isValidObjectId(bookParams)) {
             return res.status(400).send({ status: false, message: "Invalid bookId." })
         }
-        if (!isValid(reviewParams)) {
+        if (!isValidObjectId(reviewParams)) {
             return res.status(400).send({ status: false, message: "Invalid reviewId." })
         }
         //validation ends.

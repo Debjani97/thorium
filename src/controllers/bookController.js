@@ -1,14 +1,24 @@
 const bookModel = require("../models/bookModel.js");
 const userModel = require("../models/userModel");
 const reviewModel = require('../models/reviewModel');
+//const validateDate = require("validate-date");
 const objectId = require('mongoose').Schema.Types.ObjectId
-const { default: mongoose } = require("mongoose");
+
 
 const isValid = function (value) {
     if (typeof value == 'undefined' || value === null) return false
     if (typeof value == 'string' && value.trim().length === 0) return false
     return true
-}
+};
+
+const isValidRequestBody = function(requestBody) {
+    return Object.keys(requestBody).length > 0; // it checks, is there any key is available or not in request body
+};
+
+const isValidObjectId = function(objectId) {
+    return mongoose.Types.ObjectId.isValid(objectId)
+};
+
 
 
 const createBook = async function (req, res) {
@@ -21,7 +31,7 @@ const createBook = async function (req, res) {
              return res.status(403).send({status: false, message: "Unauthorized access ! User's credentials doesn't match."})
          };
         //Validation starts
-        if (!isValid(requestBody)) { //for empty req body.
+        if (!isValidRequestBody(requestBody)) { //for empty req body.
             return res.status(400).send({ status: false, message: 'Invalid request parameters. Please provide book details' })
         };
         if (!isValid(title)) {
@@ -51,6 +61,9 @@ const createBook = async function (req, res) {
         if (!isValid(releasedAt, responseType = 'boolean')) {
             return res.status(400).send({ status: false, message: `Invalid date format. Please provide date as 'YYYY-MM-DD'.` })
         };
+        // if (!validateDate(releasedAt, responseType = 'boolean')) {
+        //     return res.status(400).send({ status: false, message: `Invalid date format. Please provide date as 'YYYY-MM-DD'.` })
+        // };
 
         //validation ends.
 
@@ -130,12 +143,13 @@ const getBook = async function(req,res){
  
  }
 
+ 
 const getBookById = async function(req,res){
     try{
        const bookParams = req.params.bookId
 
        //validating bookId after accessing it from the params.
-       if (!isValid(bookParams)) {
+       if (!isValidObjectId(bookParams)) {
            return res.status(400).send({ status: false, message: "Inavlid bookId." })
        }
 
@@ -174,14 +188,14 @@ const updateBook = async function (req, res) {
         const { title, excerpt, releasedAt, ISBN } = requestUpdateBody;
 
         //validation starts.
-        if (!isValid(userIdFromToken)) {
+        if (!isValidObjectId(userIdFromToken)) {
             return res.status(402).send({ status: false, message: "Unauthorized access !" })
         }
-        if (!isValid(params)) {
+        if (!isValidObjectId(params)) {
             return res.status(400).send({ status: false, message: "Invalid bookId." })
         }
 
-        if (!isValid(requestUpdateBody)) {
+        if (!isValidRequestBody(requestUpdateBody)) {
             return res.status(400).send({ status: false, message: 'Invalid request parameters. Please provide book details to update.' })
         }
         //validation ends
@@ -239,12 +253,13 @@ const updateBook = async function (req, res) {
 }
 
 
+
 const deleteBookId = async function (req, res) {
     try {
         const params = req.params.bookId; //accessing the bookId from the params.
 
         //validation for the invalid params.
-        if (!isValid(params)) {
+        if (!isValidObjectId(params)) {
             return res.status(400).send({ status: false, message: "Inavlid bookId." })
         }
 
@@ -275,3 +290,6 @@ const deleteBookId = async function (req, res) {
 
 
 module.exports = {createBook, getBook, getBookById, updateBook, deleteBookId}
+
+
+
