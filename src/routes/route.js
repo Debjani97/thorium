@@ -10,22 +10,24 @@ router.get("/test-me", function (req, res) {
     res.send("My first ever api!")
 })
 
+//user_controller_rout......................................................
+
 router.post("/createUser", usercontroller.createUser)
 router.post("/loginUser", usercontroller.loginUser)
 
+//book_controller_rout......................................................
 
 router.post("/createBook", middleware.auth, bookcontroller.createBook)
 router.get("/getBook", middleware.auth, bookcontroller.getBook)
 router.get("/getBookById/:bookId", middleware.auth, bookcontroller.getBookById)
-router.put("/updateBook", middleware.auth, bookcontroller.updateBook)
+router.put("/updateBook/:bookId", middleware.auth, bookcontroller.updateBook)
 router.delete("/deleteBook/:bookId", middleware.auth,bookcontroller.deleteBookId)
 
+//review_controller_rout......................................................
 
-router.post("/books/:bookId/review", reviewcontroller.updateReview)
+router.post("/books/:bookId/review", reviewcontroller.createReview)
 router.put("/books/:bookId/review/:reviewId", reviewcontroller.updateReview)
-router.delete("/books/:bookId/review/:reviewId", reviewcontroller.deleteReview)
-
-
+router.delete("/book/:bookId/reviews/:reviewId", reviewcontroller.deleteReview)
 
 
 module.exports = router;

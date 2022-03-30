@@ -1,5 +1,6 @@
 const reviewModel = require('../models/reviewModel')
 const bookModel = require('../models/bookModel')
+const mongoose = require("mongoose")
 
 const isValid = function (value) {
     if (typeof value == 'undefined' || value === null) return false
@@ -15,6 +16,7 @@ const isValidRequestBody = function(requestBody) {
     return Object.keys(requestBody).length > 0; // it checks, is there any key is available or not in request body
 };
 
+//................................post_api_create_review......................................\\
 
 //Adding review for a specific book.
 const createReview = async function (req, res) {
@@ -45,6 +47,9 @@ const createReview = async function (req, res) {
         if (!isValid(rating)) {
             return res.status(400).send({ status: false, message: "Rating must be 1,2,3,4 or 5." })
         }
+        // if (!isValid(review)) {
+        //     return res.status(400).send({ status: false, message: "No comments on this book yet" })
+        // }
         //validation ends.
 
         //setting rating limit between 1-5.
@@ -75,6 +80,7 @@ const createReview = async function (req, res) {
     }
 }
 
+//................................put_api_update_review......................................\\
 
 const updateReview = async function (req, res) {
     try {
@@ -149,6 +155,7 @@ const updateReview = async function (req, res) {
     }
 }
 
+//................................delete_api_delete_book_review......................................\\
 
 const deleteReview = async function (req, res) {
     try {
@@ -184,7 +191,7 @@ const deleteReview = async function (req, res) {
                 if (deleteReviewDetails) {
                     await bookModel.findOneAndUpdate({ _id: bookParams },{$inc:{ reviews: -1 }})
                 }
-                return res.status(200).send({ status: true, message: "Review deleted successfully."})
+                return res.status(200).send({ status: true, message: "Review deleted successfully.", data:deleteReviewDetails})
 
             } else {
                 return res.status(400).send({ status: false, message: "Unable to delete review details.Review has been already deleted" })

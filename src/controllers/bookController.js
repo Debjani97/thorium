@@ -2,6 +2,7 @@ const bookModel = require("../models/bookModel.js");
 const userModel = require("../models/userModel");
 const reviewModel = require('../models/reviewModel');
 //const validateDate = require("validate-date");
+const mongoose = require("mongoose")
 const objectId = require('mongoose').Schema.Types.ObjectId
 
 
@@ -19,14 +20,14 @@ const isValidObjectId = function(objectId) {
     return mongoose.Types.ObjectId.isValid(objectId)
 };
 
-
+//................................post_api_creatbbook......................................\\
 
 const createBook = async function (req, res) {
     try {
         let requestBody = req.body;
         const { title, excerpt, userId, ISBN, category, subcategory, releasedAt } = requestBody
 
-        //  Authentication
+        //Authorisation
          if (userId != req.userId) {
              return res.status(403).send({status: false, message: "Unauthorized access ! User's credentials doesn't match."})
          };
@@ -61,13 +62,11 @@ const createBook = async function (req, res) {
         if (!isValid(releasedAt, responseType = 'boolean')) {
             return res.status(400).send({ status: false, message: `Invalid date format. Please provide date as 'YYYY-MM-DD'.` })
         };
-        // if (!validateDate(releasedAt, responseType = 'boolean')) {
-        //     return res.status(400).send({ status: false, message: `Invalid date format. Please provide date as 'YYYY-MM-DD'.` })
-        // };
 
         //validation ends.
 
         //searching title & ISBN in database to maintain their uniqueness.
+
         const titleAlreadyUsed = await bookModel.findOne({ title: title })
         if (titleAlreadyUsed) {
             return res.status(400).send({ status: false, message: "Title is already used. Try a new title." })
@@ -89,6 +88,8 @@ const createBook = async function (req, res) {
         return res.status(500).send({ status: false, Error: err.message })
     }
 }
+
+//................................get_api_findbook......................................\\
 
 const getBook = async function(req,res){
     try{
@@ -125,6 +126,7 @@ const getBook = async function(req,res){
             //Searching books according to the request 
             const books = await bookModel.find(obj).select({ subcategory: 0, ISBN: 0, isDeleted: 0, updatedAt: 0, createdAt: 0, __v: 0})
             .sort({ title: 1});
+            
 
             const countBooks = books.length
 
@@ -133,33 +135,58 @@ const getBook = async function(req,res){
                 return res.status(404).send({ status: false, message: "No books found" });
             } else {
                 res.status(200).send({status: true,message: `${countBooks} books found.`,data: books })}
-        } else {
-            return res.status(400).send({ status: false, message: "No filters applied." });
-        }
+        } 
+        // else {
+        //     return res.status(400).send({ status: false, message: "No filters applied."});
+        // }
+        let obj = {};
+            if (userId) {
+                obj.userId = userId
+            }
+            if (category) {
+                obj.category = category;
+            }
+            if (subcategory) {
+                obj.subcategory = subcategory
+            }
+            obj.isDeleted = false
+
+        const bookList = await bookModel.find(obj).select({ _id: 1, title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 })
+
+        if (bookList.length == 0) {
+        return res.status(404).send({ status: false, message: "no books found" })
+       }else{
+
+        res.status(200).send({ status: true, message: "Book list is here", data: bookList })
+       }
+
     }catch(err){
         return res.status(500).send({status:false,msg: err.message})
  
     }
- 
  }
 
- 
+ //................................get_api_findbook_id......................................\\
+
 const getBookById = async function(req,res){
     try{
        const bookParams = req.params.bookId
 
        //validating bookId after accessing it from the params.
+
        if (!isValidObjectId(bookParams)) {
            return res.status(400).send({ status: false, message: "Inavlid bookId." })
        }
 
        //Finding the book in DB by its Id & an attribute isDeleted:false
+
        const findBook = await bookModel.findOne({_id: bookParams,isDeleted: false })
        if (!findBook) {
            return res.status(404).send({ status: false, message: `Book does not exist or is already been deleted for this ${bookParams}.` })
        }
 
        //Checking the authorization of the user -> Whether user's Id matches with the book creater's Id or not.
+
        if (findBook.userId != req.userId) {
            return res.status(401).send({status: false, message: "Unauthorized access."})
        }
@@ -179,6 +206,7 @@ const getBookById = async function(req,res){
    }
 }
 
+//................................put_api_updateBook......................................\\
 
 const updateBook = async function (req, res) {
     try {
@@ -219,17 +247,20 @@ const updateBook = async function (req, res) {
         } //validation ends.
 
         //searching book in which we want to update the details.
+
         const searchBook = await bookModel.findById({_id: params})
         if (!searchBook) {
             return res.status(404).send({ status: false, message: `Book does not exist by this ${params}.` })
         }
 
         //Authorizing user -> only the creator of the book can update the details.
+
         if (searchBook.userId != req.userId) {
             return res.status(401).send({status: false, message: "Unauthorized access."})
         }
 
         //finding title and ISBN in DB to maintain their uniqueness.
+
         const findTitle = await bookModel.findOne({ title: title, isDeleted: false })
         if (findTitle) {
             return res.status(400).send({ status: false, message: `${title.trim()} is already exists.Please try a new title.` })
@@ -240,6 +271,7 @@ const updateBook = async function (req, res) {
         }
 
         //checking the attribute isDeleted:false, then only the user is allowed to update.
+
         if (searchBook.isDeleted == false) {
             const changeDetails = await bookModel.findOneAndUpdate({ _id: params }, { title: title, excerpt: excerpt, releasedAt: releasedAt, ISBN: ISBN }, { new: true })
 
@@ -252,13 +284,14 @@ const updateBook = async function (req, res) {
     }
 }
 
-
+//................................delete_api_deleteBookById......................................\\
 
 const deleteBookId = async function (req, res) {
     try {
         const params = req.params.bookId; //accessing the bookId from the params.
 
         //validation for the invalid params.
+
         if (!isValidObjectId(params)) {
             return res.status(400).send({ status: false, message: "Inavlid bookId." })
         }
@@ -270,14 +303,19 @@ const deleteBookId = async function (req, res) {
             return res.status(404).send({ status: false, message: `No book found by ${params}` })
         }
         //Authorizing the user -> if the user doesn't created the book, He/she won't be able to delete it.
+
         else if (findBook.userId != req.userId) {
             return res.status(401).send({ status: false, message: "Unauthorized access."})
         }
+
         //if the attribute isDeleted:true , then it is already deleted.
+
         else if (findBook.isDeleted == true) {
             return res.status(400).send({ status: false, message: `Book has been already deleted.` })
         } else {
+
             //if attribute isDeleted:false, then change the isDeleted flag to true, and remove all the reviews of the book as well.
+
             const deleteData = await bookModel.findOneAndUpdate({ _id: { $in: findBook } }, { $set: { isDeleted: true, deletedAt: new Date() } }, { new: true }).select({ _id: 1, title: 1, isDeleted: 1, deletedAt: 1 })
 
             await reviewModel.updateMany({ bookId: params }, { isDeleted: true, deletedAt: new Date() })
@@ -290,6 +328,3 @@ const deleteBookId = async function (req, res) {
 
 
 module.exports = {createBook, getBook, getBookById, updateBook, deleteBookId}
-
-
-

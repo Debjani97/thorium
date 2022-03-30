@@ -16,6 +16,8 @@ const isValidTitle = function(title) {
     return ['Mr', 'Mrs', 'Miss'].indexOf(title) !== -1
 }
 
+//................................post_api_creatuser......................................\\
+
 const createUser = async function (req, res) {
     try{
       const requestBody = req.body;
@@ -87,42 +89,20 @@ const createUser = async function (req, res) {
 
       //setting password's mandatory length in between 8 to 15 characters.
       if (!(password.length >= 8 && password.length <= 15)) {
-          return res.status(400).send({ status: false, message: "Password criteria not fulfilled." })
+          return res.status(400).send({ status: false, message: "Password criteria not fulfilled; Minimum length-8 & Maximum length-15." })
       }
 
       //saving user's data into DB.
       const userData = await userModel.create(requestBody)
       return res.status(201).send({ status: true, message: "Successfully saved User data", data: userData })
 
-  
-//        let user = req.body
-//        if (Object.entries(user).length === 0) {
-//        return res.status(400).send({ status: false, msg: "Kindly pass some data " })
-//       }
-// else {
-//      let email = req.body.email
-//      if(!email)
-//      return res.status(400).send({status: false,msg:"Enter Valid Email"})
-
-//      let check = validator.validate(email);
-//      if (!check) {
-//           return res.status(401).send({ status: false, msg: "Enter a valid email id" }) } 
-
-//      let mail = await userModel.findOne({ email })
-//      if (mail) {
-//           return res.status(401).send({ status: false, msg: "Enter Unique Email Id." })}
-
-//      let userCreated = await userModel.create(user)
-//      res.status(201).send({ status: true, data: userCreated })
-// }
 }
 catch (error) {
-console.log(error)
 res.status(500).send({ status: false, msg: error.message })
 }
-
 };
 
+//................................post_api_loginuser......................................\\
   
 const loginUser = async function (req, res) {
     try {
@@ -133,26 +113,31 @@ const loginUser = async function (req, res) {
        let username = req.body.email;
        let password = req.body.password;
 
-       if (!/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(username))
-          return res.status(400).send({ status: false, message: "Invalid Email id." })
-
-      //setting password's mandatory length in between 8 to 15 characters.
+    
       if (!(password.length >= 8 && password.length <= 15)) {
           return res.status(400).send({ status: false, message: "Password criteria not fulfilled,not match" })
       }
 
        if(!username){
-         return res.status(400).send({status : false, msg : "Enter Valid Email"})}
+         return res.status(400).send({status : false, msg : "Email-id require"})}
 
        if(!password){
-         return res.status(400).send({status:false,msg:"Enter valid Password"})}
+         return res.status(400).send({status:false,msg:"Password require"})}
          
-       let user = await userModel.findOne({ email: username, password: password });
+       let user = await userModel.findOne({ email: username });
        if (!user)
           return res.status(400).send({
              status: false,
-             msg: "username or password is not correct",
+             msg: "username is not correct",
           }); 
+
+      let user1 = await userModel.findOne({ password: password });
+      if (!user1)
+         return res.status(400).send({
+            status: false,
+            msg: "password is not correct",
+          });
+
        let token = jwt.sign({
           userId: user._id,
           email: username,
