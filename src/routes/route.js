@@ -17,11 +17,11 @@ router.post("/login", usercontroller.loginUser)
 
 //book_controller_rout......................................................
 
-router.post("/Books", middleware.auth, bookcontroller.createBook)
-router.get("/getBook", middleware.auth, bookcontroller.getBook)
-router.get("/getBookById/:bookId", middleware.auth, bookcontroller.getBookById)
-router.put("/updateBook/:bookId", middleware.auth, bookcontroller.updateBook)
-router.delete("/deleteBook/:bookId", middleware.auth,bookcontroller.deleteBookId)
+router.post("/books", middleware.auth, bookcontroller.createBook)
+router.get("/Books", middleware.auth, bookcontroller.getBook)
+router.get("/books/:bookId", middleware.auth, bookcontroller.getBookById)
+router.put("/update/Books/:bookId", middleware.auth, bookcontroller.updateBook)
+router.delete("/delete/Books/:bookId", middleware.auth,bookcontroller.deleteBookId)
 
 //review_controller_rout......................................................
 
