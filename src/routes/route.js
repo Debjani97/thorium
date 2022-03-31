@@ -12,12 +12,12 @@ router.get("/test-me", function (req, res) {
 
 //user_controller_rout......................................................
 
-router.post("/createUser", usercontroller.createUser)
-router.post("/loginUser", usercontroller.loginUser)
+router.post("/register", usercontroller.createUser)
+router.post("/login", usercontroller.loginUser)
 
 //book_controller_rout......................................................
 
-router.post("/createBook", middleware.auth, bookcontroller.createBook)
+router.post("/Books", middleware.auth, bookcontroller.createBook)
 router.get("/getBook", middleware.auth, bookcontroller.getBook)
 router.get("/getBookById/:bookId", middleware.auth, bookcontroller.getBookById)
 router.put("/updateBook/:bookId", middleware.auth, bookcontroller.updateBook)

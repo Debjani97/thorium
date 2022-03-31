@@ -141,13 +141,13 @@ const loginUser = async function (req, res) {
        let token = jwt.sign({
           userId: user._id,
           email: username,
-          iat: Math.floor(Date.now() / 1000),
-          exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24
+        //   iat: Math.floor(Date.now() / 1000),
+        //   exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24
        },
           "third project",
-        //   {
-        //     expiresIn:"30m"     // EXPIRY TIME FOR THE TOKEN
-        //   }
+          {
+            expiresIn:"30m"     // EXPIRY TIME FOR THE TOKEN
+          }
        );
        res.setHeader("x-api-key", token);
        res.status(200).send({ status: true, data: token })

@@ -91,80 +91,141 @@ const createBook = async function (req, res) {
 
 //................................get_api_findbook......................................\\
 
-const getBook = async function(req,res){
-    try{
+const getBook = async function (req, res) {
+    try {
         const queryParams = req.query
-        const { userId, category, subcategory } = queryParams
+        const filterConditions = { isDeleted: false }
+        
 
-        //Validation for invalid userId in params
-        if (userId) {
-            if (!(userId.length ==24 )) {
-                return res.status(400).send({ status: false, message: "Invalid userId in params." })}
-        }
+        if (isValid(queryParams)) {
+            const { userId, category, subcategory } = queryParams
 
-        //Combinations of query params.
-        if (userId || category || subcategory) {
-
-            let obj = {};
-            if (userId) {
-                obj.userId = userId
+            
+            if (isValid(userId) && !isValid(userId)) {
+                const userById = await userModel.findById(userId)
+                if (!isValid(userId)) {
+                    return res.status(400).send({ status: false, msg: "Invalid userId" })
+                }
+                if (userById) {
+                    filterConditions['userId'] = userId
+                }
             }
-            if (category) {
-                obj.category = category;
-            }
-            if (subcategory) {
-                obj.subcategory = subcategory
-            }
-            obj.isDeleted = false
 
-            // Authorizing user --> If not then won't be able to fetch books of someone else's.
-             const check = await bookModel.findOne(obj)
-             if (check) {
-                 if (check.userId != req.userId) {
-                    return res.status(401).send({status: false,message: "Unauthorized access."})}}
+            if (isValid(category)) {
+                filterConditions['category'] = category.trim()
+            }
 
-            //Searching books according to the request 
-            const books = await bookModel.find(obj).select({ subcategory: 0, ISBN: 0, isDeleted: 0, updatedAt: 0, createdAt: 0, __v: 0})
+            if (isValid(subcategory)) {
+                filterConditions['subcategory'] = subcategory.trim()
+            }
+
+        // const check = await bookModel.findOne(filterConditions)
+        // if (check) {
+        // if (check.userId != req.userId) {
+        // return res.status(401).send({status: false,message: "Unauthorized access."})}}
+
+            const bookListAfterFiltration = await bookModel.find(filterConditions).select({ _id: 0, title: 0, excerpt: 0, userId: 0, category: 0, releasedAt: 0, reviews: 0 })
             .sort({ title: 1});
+
+            const countBooks = bookListAfterFiltration.length
+
+            if (bookListAfterFiltration.length == 0) {
+                return res.status(404).send({ status: false, message: "No books found" })
+            }
+
+            res.status(200).send({ status: true, message: `${countBooks} books found.`, bookList: bookListAfterFiltration })
+
+        } else {
+            const bookList = await bookModel.find(obj).select({ _id: 0, title: 0, excerpt: 0, userId: 0, category: 0, releasedAt: 0, reviews: 0 })
+            .sort({ title: 1});
+
+            if (bookList.length == 0) {
+                return res.status(404).send({ status: false, message: "No books found" })
+            }
+
+            res.status(200).send({ status: true, message: "Book list is here", bookList: bookList })
+        }
+    }
+catch (err) {
+        res.status(500).send({ error: err.message })
+    }
+};
+
+
+// const getBook = async function(req,res){
+//     try{
+//         const queryParams = req.query
+//         const { userId, category, subcategory } = queryParams
+
+//         //Validation for invalid userId in params
+//         if (userId) {
+//             if (!(userId.length ==24 )) {
+//                 return res.status(400).send({ status: false, message: "Invalid userId in params." })}
+//         }
+
+//         //Combinations of query params.
+//         if (userId || category || subcategory) {
+
+//             let obj = {};
+//             if (userId) {
+//                 obj.userId = userId
+//             }
+//             if (category) {
+//                 obj.category = category;
+//             }
+//             if (subcategory) {
+//                 obj.subcategory = subcategory
+//             }
+//             obj.isDeleted = false
+
+//             // Authorizing user --> If not then won't be able to fetch books of someone else's.
+//              const check = await bookModel.findOne(obj)
+//              if (check) {
+//                  if (check.userId != req.userId) {
+//                     return res.status(401).send({status: false,message: "Unauthorized access."})}}
+
+//             //Searching books according to the request 
+//             const books = await bookModel.find(obj).select({ subcategory: 0, ISBN: 0, isDeleted: 0, updatedAt: 0, createdAt: 0, __v: 0})
+//             .sort({ title: 1});
             
 
-            const countBooks = books.length
+//             const countBooks = books.length
 
-            //If no found by the specific combinations revert error msg ~-> No books found.
-            if (books == false) {
-                return res.status(404).send({ status: false, message: "No books found" });
-            } else {
-                res.status(200).send({status: true,message: `${countBooks} books found.`,data: books })}
-        } 
-        // else {
-        //     return res.status(400).send({ status: false, message: "No filters applied."});
-        // }
-        let obj = {};
-            if (userId) {
-                obj.userId = userId
-            }
-            if (category) {
-                obj.category = category;
-            }
-            if (subcategory) {
-                obj.subcategory = subcategory
-            }
-            obj.isDeleted = false
+//             //If no found by the specific combinations revert error msg ~-> No books found.
+//             if (books == false) {
+//                 return res.status(404).send({ status: false, message: "No books found" });
+//             } else {
+//                 res.status(200).send({status: true,message: `${countBooks} books found.`,data: books })}
+//         } 
+//         // else {
+//         //     return res.status(400).send({ status: false, message: "No filters applied."});
+//         // }
+//         let obj = {};
+//             if (userId) {
+//                 obj.userId = userId
+//             }
+//             if (category) {
+//                 obj.category = category;
+//             }
+//             if (subcategory) {
+//                 obj.subcategory = subcategory
+//             }
+//             obj.isDeleted = false
 
-        const bookList = await bookModel.find(obj).select({ _id: 1, title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 })
+//         const bookList = await bookModel.find(obj).select({ _id: 1, title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 })
 
-        if (bookList.length == 0) {
-        return res.status(404).send({ status: false, message: "no books found" })
-       }else{
+//         if (bookList.length == 0) {
+//         return res.status(404).send({ status: false, message: "no books found" })
+//        }else{
 
-        res.status(200).send({ status: true, message: "Book list is here", data: bookList })
-       }
+//         res.status(200).send({ status: true, message: "Book list is here", data: bookList })
+//        }
 
-    }catch(err){
-        return res.status(500).send({status:false,msg: err.message})
+//     }catch(err){
+//         return res.status(500).send({status:false,msg: err.message})
  
-    }
- }
+//     }
+//  }
 
  //................................get_api_findbook_id......................................\\
 
@@ -328,3 +389,10 @@ const deleteBookId = async function (req, res) {
 
 
 module.exports = {createBook, getBook, getBookById, updateBook, deleteBookId}
+
+
+
+
+
+
+
