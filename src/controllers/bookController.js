@@ -127,6 +127,12 @@ const getBook = async function (req, res) {
             const bookListAfterFiltration = await bookModel.find(filterConditions).select({ _id: 0, title: 0, excerpt: 0, userId: 0, category: 0, releasedAt: 0, reviews: 0 })
             .sort({ title: 1});
 
+            // const bookDetail = bookData.sort(function(a,b) {
+            //     if(a.title.toLowerCase() < b.title.toLowerCase()) { return -1 };
+            //     if(a.title.toLowerCase() > b.title.toLowerCase()) { return 1 };
+            //     return 0;
+            // })
+
             const countBooks = bookListAfterFiltration.length
 
             if (bookListAfterFiltration.length == 0) {

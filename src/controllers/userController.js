@@ -113,16 +113,13 @@ const loginUser = async function (req, res) {
        let username = req.body.email;
        let password = req.body.password;
 
-    
-      if (!(password.length >= 8 && password.length <= 15)) {
-          return res.status(400).send({ status: false, message: "Password criteria not fulfilled,not match" })
-      }
 
        if(!username){
          return res.status(400).send({status : false, msg : "Email-id require"})}
 
        if(!password){
          return res.status(400).send({status:false,msg:"Password require"})}
+       
          
        let user = await userModel.findOne({ email: username });
        if (!user)
