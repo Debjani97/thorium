@@ -18,16 +18,16 @@ router.post("/login", usercontroller.loginUser)
 //book_controller_rout......................................................
 
 router.post("/books", middleware.auth, bookcontroller.createBook)
-router.get("/Books", middleware.auth, bookcontroller.getBook)
+router.get("/books", middleware.auth, bookcontroller.getBook)
 router.get("/books/:bookId", middleware.auth, bookcontroller.getBookById)
-router.put("/update/Books/:bookId", middleware.auth, bookcontroller.updateBook)
-router.delete("/delete/Books/:bookId", middleware.auth,bookcontroller.deleteBookId)
+router.put("/books/:bookId", middleware.auth, bookcontroller.updateBook)
+router.delete("/books/:bookId", middleware.auth,bookcontroller.deleteBookId)
 
 //review_controller_rout......................................................
 
 router.post("/books/:bookId/review", reviewcontroller.createReview)
 router.put("/books/:bookId/review/:reviewId", reviewcontroller.updateReview)
-router.delete("/book/:bookId/reviews/:reviewId", reviewcontroller.deleteReview)
+router.delete("/books/:bookId/review/:reviewId", reviewcontroller.deleteReview)
 
 
 module.exports = router;
