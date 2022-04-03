@@ -1,6 +1,5 @@
 const userModel = require("../models/userModel.js");
 const jwt = require("jsonwebtoken");
-// let validator =require("email-validator");
 
 const isValid = function (value) {
    if (typeof value == 'undefined' || value === null) return false
@@ -30,7 +29,7 @@ const createUser = async function (req, res) {
       if (!isValid(title)) {
           return res.status(400).send({ status: false, message: "Title must be present" })
       };
-      if (!isValidTitle(title)) {
+     if (!isValidTitle(title)) {
           return res.status(400).send({ status: false, message: `Title should be among Mr, Mrs or Miss` })
       };
       if (!isValid(name)) {
@@ -48,23 +47,6 @@ const createUser = async function (req, res) {
       if (!isValid(address)) {
           return res.status(400).send({ status: false, message: "Address cannot be empty if key is mentioned." })
       };
-
-      //checking if the address key is present in the request body then it must have the following keys with their values, If not then address won't get stored in DB.
-      if (address) {
-
-          if (typeof (address) != 'object') {
-              return res.status(400).send({ status: false, message: "address must be in object." })
-          }
-          if (!isValid(address.street)) {
-              return res.status(400).send({ status: false, message: "Street address cannot be empty." })
-          }
-          if (!isValid(address.city)) {
-              return res.status(400).send({ status: false, message: "City cannot be empty." })
-          }
-          if (!isValid(address.pincode)) {
-              return res.status(400).send({ status: false, message: "Pincode cannot be empty." })
-          }
-      }
       //validation end.
 
       //searching phone in DB to maintain uniqueness.
@@ -110,18 +92,18 @@ const loginUser = async function (req, res) {
        if (Object.entries(data).length == 0) {
           res.status(400).send({ status: false, msg: "kindly pass Some Data" })
        }
-       let username = req.body.email;
+       let email = req.body.email;
        let password = req.body.password;
 
 
-       if(!username){
+       if(!email){
          return res.status(400).send({status : false, msg : "Email-id require"})}
 
        if(!password){
          return res.status(400).send({status:false,msg:"Password require"})}
        
          
-       let user = await userModel.findOne({ email: username });
+       let user = await userModel.findOne({ email: email });
        if (!user)
           return res.status(400).send({
              status: false,
@@ -137,7 +119,7 @@ const loginUser = async function (req, res) {
 
        let token = jwt.sign({
           userId: user._id,
-          email: username,
+          email: email,
         //   iat: Math.floor(Date.now() / 1000),
         //   exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24
        },
