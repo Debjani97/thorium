@@ -47,11 +47,7 @@ const createReview = async function (req, res) {
         if (!isValid(rating)) {
             return res.status(400).send({ status: false, message: "Rating must be 1,2,3,4 or 5." })
         }
-        // if (!isValid(review)) {
-        //     return res.status(400).send({ status: false, message: "No comments on this book yet" })
-        // }
-        //validation ends.
-
+    
         //setting rating limit between 1-5.
         if (!(rating >= 1 && rating <= 5)) {
             return res.status(400).send({ status: false, message: "Rating must be in between 1 to 5." })
