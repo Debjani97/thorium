@@ -107,7 +107,7 @@ const loginUser = async function (req, res) {
        if (!user)
           return res.status(400).send({
              status: false,
-             msg: "username is not correct",
+             msg: "email is not correct",
           }); 
 
       let user1 = await userModel.findOne({ password: password });

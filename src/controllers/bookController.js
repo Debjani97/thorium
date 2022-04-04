@@ -5,7 +5,7 @@ const mongoose = require("mongoose")
 const objectId = require('mongoose').Schema.Types.ObjectId
 
 
-const isValid = function (value) {
+const isValid = function (value) { 
     if (typeof value == 'undefined' || value === null) return false
     if (typeof value == 'string' && value.trim().length === 0) return false
     return true
@@ -24,7 +24,7 @@ const isValidObjectId = function(objectId) {
 const createBook = async function (req, res) {
     try {
         let requestBody = req.body;
-        const { title, excerpt, userId, ISBN, category, subcategory, releasedAt } = requestBody
+        const { title, excerpt, userId, ISBN, category, subcategory, releasedAt,bookCover } = requestBody
 
         //Authorisation
          if (userId != req.userId) {
@@ -61,7 +61,6 @@ const createBook = async function (req, res) {
         if (!isValid(releasedAt, responseType = 'boolean')) {
             return res.status(400).send({ status: false, message: `Invalid date format. Please provide date as 'YYYY-MM-DD'.` })
         };
-
         //validation ends.
 
         //searching title & ISBN in database to maintain their uniqueness.
@@ -74,7 +73,6 @@ const createBook = async function (req, res) {
         if (isbnAlreadyUsed) {
             return res.status(400).send({ status: false, message: "ISBN already used. Try a new ISBN." })
         }
-
         //Verifying user -> If not verified then won't be able to create a book.
         const user = await userModel.findById(userId)
         if (!user) {

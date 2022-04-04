@@ -12,7 +12,7 @@ const user = new mongoose.Schema( {
         required:true,
          //unique:true,
          type:String,
-        //  trim:true
+         trim:true
     },
 
     phone: {
